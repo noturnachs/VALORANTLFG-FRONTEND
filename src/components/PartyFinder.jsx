@@ -13,7 +13,7 @@ const PartyFinder = () => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [serverTag, setServerTag] = useState("");
-  
+  const [filter, setFilter] = useState(""); 
 
   useEffect(() => {
     const fetchParties = async () => {
@@ -27,7 +27,7 @@ const PartyFinder = () => {
             )
           : [];
         setParties(sortedParties);
-        setError(""); 
+        setError("");
       } catch (err) {
         const message = err.response?.data?.msg || "An error occurred";
         setError(message);
@@ -54,69 +54,69 @@ const PartyFinder = () => {
     };
   }, []);
 
-const postParty = async () => {
-  setError(null); // Reset error state
+  const postParty = async () => {
+    setError(null); // Reset error state
 
-  // Validation checks
-  if (!partyCode.trim() && !description.trim()) {
-    setError("Please provide both a Party Code and a Description.");
-    return;
-  } else if (!partyCode.trim()) {
-    setError("Please provide a Party Code.");
-    return;
-  } else if (!description.trim()) {
-    setError("Please provide a Description.");
-    return;
-  } else if (!serverTag.trim()) {
-    setError("Please select a Server.");
-    return;
-  }
-
-  if (partyCode.length > 6) {
-    setError("Party Code must be 6 characters or less");
-    return;
-  }
-
-  try {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/parties`,
-      {
-        partyCode,
-        description,
-        serverTag, // Make sure to include serverTag in the request body if needed
-      }
-    );
-
-    if (response.status === 200) {
-      console.log("Party added successfully:", response.data);
-      setAlertMessage("Party added successfully");
-      setAlertVisible(true);
-      setTimeout(() => {
-        setAlertVisible(false);
-      }, 5000);
+    // Validation checks
+    if (!partyCode.trim() && !description.trim()) {
+      setError("Please provide both a Party Code and a Description.");
+      return;
+    } else if (!partyCode.trim()) {
+      setError("Please provide a Party Code.");
+      return;
+    } else if (!description.trim()) {
+      setError("Please provide a Description.");
+      return;
+    } else if (!serverTag.trim()) {
+      setError("Please select a Server.");
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    if (err.response && err.response.data) {
-      if (err.response.data.error.includes("profanity")) {
-        setError("Please avoid using profane language in your description.");
+
+    if (partyCode.length > 6) {
+      setError("Party Code must be 6 characters or less");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/parties`,
+        {
+          partyCode,
+          description,
+          serverTag, 
+        }
+      );
+
+      if (response.status === 200) {
+        console.log("Party added successfully:", response.data);
+        setAlertMessage("Party added successfully");
+        setAlertVisible(true);
+        setTimeout(() => {
+          setAlertVisible(false);
+        }, 5000);
+      }
+    } catch (err) {
+      console.error(err);
+      if (err.response && err.response.data) {
+        if (err.response.data.error.includes("profanity")) {
+          setError("Please avoid using profane language in your description.");
+        } else {
+          setError(err.response.data.error);
+        }
       } else {
-        setError(err.response.data.error);
+        setError("Failed to add party");
       }
-    } else {
-      setError("Failed to add party");
     }
-  }
-};
+  };
 
   const pasteCode = async () => {
     try {
       const text = await navigator.clipboard.readText();
-      setPartyCode(text.slice(0, 6)); 
-      setAlertVisible(true); 
+      setPartyCode(text.slice(0, 6));
+      setAlertVisible(true);
       setAlertMessage("Code pasted successfully");
       setTimeout(() => {
-        setAlertVisible(false); 
+        setAlertVisible(false);
       }, 5000);
     } catch (err) {
       console.error("Failed to read clipboard contents: ", err);
@@ -136,6 +136,10 @@ const postParty = async () => {
     element.style.height = "auto";
     element.style.height = element.scrollHeight + "px";
   };
+
+  const filteredParties = filter
+    ? parties.filter((party) => party.server_tag === filter)
+    : parties;
 
   return (
     <div className="container mx-auto mt-10">
@@ -199,7 +203,9 @@ const postParty = async () => {
             Invite Players by Party Code
           </h2>
           {error && (
-            <div className="text-red-500 text-center mt-2 font-bold">{error}</div>
+            <div className="text-red-500 text-center mt-2 font-bold">
+              {error}
+            </div>
           )}
           <div className="flex flex-row space-x-2 items-center mt-4">
             <input
@@ -271,10 +277,26 @@ const postParty = async () => {
           All posts will have 5 minutes until status is set to expired
         </p>
 
-        {parties.length === 0 ? (
-          <div className="text-white">No parties found</div>
+        <div className="mt-4">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="bg-gray-700 text-white p-2 rounded"
+          >
+            <option value="">All Servers</option>
+            <option value="NA">NA Server</option>
+            <option value="LATAM">LATAM Server</option>
+            <option value="BR">BR Server</option>
+            <option value="EU">EU Server</option>
+            <option value="KR">KR Server</option>
+            <option value="AP">AP Server</option>
+          </select>
+        </div>
+
+        {filteredParties.length === 0 ? (
+          <div className="text-white mt-2 font-bold">No parties found</div>
         ) : (
-          parties.map((party, index) => (
+          filteredParties.map((party, index) => (
             <div key={index} className="bg-gray-700 p-4 mt-2 rounded">
               <h3 className=" text-white">
                 <span className="font-bold text-[#6dfed8] text-2xl">
@@ -287,7 +309,8 @@ const postParty = async () => {
                       party.expired ? "text-red-500" : "text-green-500"
                     }`}
                   >
-                    {party.expired ? "Expired" : "Active"} <span className="text-white">-</span>&nbsp;
+                    {party.expired ? "Expired" : "Active"}{" "}
+                    <span className="text-white">-</span>&nbsp;
                     <span className="bg-yellow-100 text-yellow-800 text-sm font-regular me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
                       {party.server_tag}
                     </span>{" "}
