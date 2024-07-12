@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import moment from "moment-timezone";
 import io from "socket.io-client";
+import Select from "react-select";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
@@ -13,7 +14,13 @@ const PartyFinder = () => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [serverTag, setServerTag] = useState("");
-  const [filter, setFilter] = useState(""); 
+  const [filter, setFilter] = useState("");
+  const [selectedTags, setSelectedTags] = useState([]);
+  const tagOptions = [
+    { value: "has mic", label: "has mic" },
+    { value: "speaks tagalog", label: "speaks tagalog" },
+   
+  ]; 
 
   useEffect(() => {
     const fetchParties = async () => {
@@ -83,7 +90,8 @@ const PartyFinder = () => {
         {
           partyCode,
           description,
-          serverTag, 
+          serverTag,
+          add_tags: selectedTags,
         }
       );
 
@@ -140,6 +148,10 @@ const PartyFinder = () => {
   const filteredParties = filter
     ? parties.filter((party) => party.server_tag === filter)
     : parties;
+
+  const handleTagChange = (selectedOptions) => {
+    setSelectedTags(selectedOptions.map((option) => option.value));
+  };
 
   return (
     <div className="container mx-auto mt-10">
@@ -202,6 +214,11 @@ const PartyFinder = () => {
           <h2 className="text-2xl text-white font-bold text-center">
             Invite Players by Party Code
           </h2>
+          <p className="text-gray-300 text-justify mt-2">
+            Welcome to ValoParty! Just post your party code and players will
+            join. Connect with fellow gamers and enjoy seamless gaming sessions!
+          </p>
+
           {error && (
             <div className="text-red-500 text-center mt-2 font-bold">
               {error}
@@ -252,6 +269,21 @@ const PartyFinder = () => {
               <option value="AP">AP Server</option>
             </select>
           </div>
+
+          <div className="mt-5">
+            <Select
+              isMulti
+              name="tags"
+              options={tagOptions}
+              className="basic-multi-select bg-gray-700 text-black font-semibold"
+              classNamePrefix="select"
+              onChange={handleTagChange}
+              value={tagOptions.filter((option) =>
+                selectedTags.includes(option.value)
+              )}
+            />
+          </div>
+
           <textarea
             className="w-full p-2 mt-4 rounded bg-[#374151] resize-none"
             placeholder="a little bit of text ex: need 2, need 1"
@@ -303,9 +335,21 @@ const PartyFinder = () => {
                   {party.party_code.toUpperCase()}
                 </span>
 
+                <div className="mt-1">
+                  {party.add_tags &&
+                    party.add_tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-green-200 text-green-300 text-xs font-medium me-1 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                </div>
+
                 <span>
                   <p
-                    className={`text-sm font-bold ${
+                    className={`text-sm mt-1 font-bold ${
                       party.expired ? "text-red-500" : "text-green-500"
                     }`}
                   >
