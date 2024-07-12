@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://valoparty.com/sitemap.xml
