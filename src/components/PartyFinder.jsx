@@ -20,7 +20,35 @@ const PartyFinder = () => {
     { value: "has mic", label: "has mic" },
     { value: "speaks tagalog", label: "speaks tagalog" },
    
-  ]; 
+  ];
+  const [rank, setRank] = useState("");
+  const [gamemode, setGamemode] = useState("");
+
+  const getRankStyle = (rank) => {
+    switch (rank) {
+      case "IRON":
+        return "bg-[#6c6b6f] text-white";
+      case "BRONZE":
+        return "bg-[#7c5200] text-white";
+      case "SILVER":
+        return "bg-[#fefefe] text-black";
+      case "GOLD":
+        return "bg-[#d1871b] text-white";
+      case "PLATINUM":
+        return "bg-[#2c8392] text-white";
+      case "DIAMOND":
+        return "bg-[#d880ee] text-white";
+      case "ASCENDANT":
+        return "bg-[#0b512f] text-white";
+      case "IMMORTAL":
+        return "bg-[#b9364d] text-white";
+      case "RADIANT":
+        return "bg-[#ffffa5] text-black ";
+      default:
+        return "bg-gray-200 text-gray-800"; 
+    }
+  };
+
 
   useEffect(() => {
     const fetchParties = async () => {
@@ -64,6 +92,8 @@ const PartyFinder = () => {
   const postParty = async () => {
     setError(null); // Reset error state
 
+    
+
     // Validation checks
     if (!partyCode.trim() && !description.trim()) {
       setError("Please provide both a Party Code and a Description.");
@@ -76,6 +106,12 @@ const PartyFinder = () => {
       return;
     } else if (!serverTag.trim()) {
       setError("Please select a Server.");
+      return;
+    } else if (!rank.trim()) {
+      setError("Please select a rank.");
+      return;
+    } else if (!gamemode.trim()) {
+      setError("Please select a gamemode.");
       return;
     }
 
@@ -92,6 +128,8 @@ const PartyFinder = () => {
           description,
           serverTag,
           add_tags: selectedTags,
+          rank,
+          gamemode,
         }
       );
 
@@ -258,7 +296,7 @@ const PartyFinder = () => {
             <select
               value={serverTag}
               onChange={(e) => setServerTag(e.target.value)}
-              className="bg-gray-700 text-white p-2 rounded"
+              className="bg-gray-700 text-white p-2 rounded w-full"
             >
               <option value="">Select Server</option>
               <option value="NA">NA Server</option>
@@ -271,12 +309,47 @@ const PartyFinder = () => {
           </div>
 
           <div className="mt-5">
+            <select
+              value={rank}
+              onChange={(e) => setRank(e.target.value)}
+              className="bg-gray-700 text-white p-2 rounded w-full"
+              required
+            >
+              <option value="">Select Rank</option>
+              <option value="ANY">Any</option>
+              <option value="IRON">Iron</option>
+              <option value="BRONZE">Bronze</option>
+              <option value="SILVER">Silver</option>
+              <option value="GOLD">Gold</option>
+              <option value="PLATINUM">Platinum</option>
+              <option value="DIAMOND">Diamond</option>
+              <option value="ASCENDANT">Ascendant</option>
+              <option value="IMMORTAL">Immortal</option>
+              <option value="RADIANT">Radiant</option>
+            </select>
+          </div>
+
+          <div className="mt-5">
+            <select
+              value={gamemode}
+              onChange={(e) => setGamemode(e.target.value)}
+              className="bg-gray-700 text-white p-2 rounded w-full"
+              required
+            >
+              <option value="">Select Game Mode</option>
+              <option value="unrated">Unrated</option>
+              <option value="competitive">Competitive</option>
+            </select>
+          </div>
+
+          <div className="mt-5">
             <Select
               isMulti
               name="tags"
               options={tagOptions}
               className="basic-multi-select bg-gray-700 text-black font-semibold"
               classNamePrefix="select"
+              placeholder="Select additional tags"
               onChange={handleTagChange}
               value={tagOptions.filter((option) =>
                 selectedTags.includes(option.value)
@@ -334,17 +407,40 @@ const PartyFinder = () => {
                 <span className="font-bold text-[#6dfed8] text-2xl">
                   {party.party_code.toUpperCase()}
                 </span>
+                <div className="flex flex-row">
+                  <div className="mt-1">
+                    {party.add_tags &&
+                      party.add_tags.map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-green-200 text-green-300 text-xs font-medium me-1 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                  </div>
 
-                <div className="mt-1">
-                  {party.add_tags &&
-                    party.add_tags.map((tag, idx) => (
+                  {/* Display rank */}
+                  {party.rank && (
+                    <div className="mt-1">
                       <span
-                        key={idx}
-                        className="bg-green-200 text-green-300 text-xs font-medium me-1 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300"
+                        className={`${getRankStyle(
+                          party.rank
+                        )} text-xs font-bold me-1 px-2.5 py-0.5 rounded-full `}
                       >
-                        {tag}
+                        {party.rank}
                       </span>
-                    ))}
+                    </div>
+                  )}
+
+                  {/* Display gamemode */}
+                  {party.gamemode && (
+                    <div className="mt-1">
+                      <span className="bg-purple-200 text-purple-800 text-xs font-medium me-1 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                        {party.gamemode}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <span>
@@ -361,10 +457,11 @@ const PartyFinder = () => {
                   </p>
                 </span>
               </h3>
-              <p className="text-gray-400 text-xs">
+
+              <p className="text-white">{party.description}</p>
+              <p className="text-gray-400 text-[11.5px]">
                 Posted {getLocalTime(party.created_at)}
               </p>
-              <p className="text-white">{party.description}</p>
             </div>
           ))
         )}
