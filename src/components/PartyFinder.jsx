@@ -11,6 +11,8 @@ const PartyFinder = () => {
   const [description, setDescription] = useState("");
   const [error, setError] = useState(null);
   const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  
 
   useEffect(() => {
     const fetchParties = async () => {
@@ -41,8 +43,13 @@ const PartyFinder = () => {
       );
     });
 
+    socket.on("newParty", (newParty) => {
+      setParties((prevParties) => [newParty, ...prevParties]);
+    });
+
     return () => {
       socket.off("partyExpired");
+      socket.off("newParty");
     };
   }, []);
 
@@ -73,9 +80,15 @@ const PartyFinder = () => {
           description,
         }
       );
-      setParties([response.data, ...parties]); // Prepend new party
-      setPartyCode("");
-      setDescription("");
+
+      if (response.status === 200) {
+        console.log("Party added successfully:", response.data);
+        setAlertMessage("Party added successfully");
+        setAlertVisible(true);
+        setTimeout(() => {
+          setAlertVisible(false);
+        }, 5000);
+      }
     } catch (err) {
       console.error(err);
       if (err.response && err.response.data) {
@@ -91,6 +104,7 @@ const PartyFinder = () => {
       const text = await navigator.clipboard.readText();
       setPartyCode(text.slice(0, 6)); // Ensure the pasted text is limited to 6 characters
       setAlertVisible(true); // Show alert
+      setAlertMessage("Code pasted successfully");
       setTimeout(() => {
         setAlertVisible(false); // Hide alert after 5 seconds
       }, 5000);
@@ -107,7 +121,6 @@ const PartyFinder = () => {
   const getLocalTime = (time) => {
     return moment.utc(time).tz("Asia/Manila").fromNow();
   };
-
 
   const adjustHeight = (element) => {
     element.style.height = "auto";
@@ -145,9 +158,7 @@ const PartyFinder = () => {
               </div>
               <div>
                 <p className="text-white">Success</p>
-                <p className="text-gray-500 text-md">
-                  Code pasted successfully
-                </p>
+                <p className="text-gray-500 text-md">{alertMessage}</p>
               </div>
             </div>
             <button
