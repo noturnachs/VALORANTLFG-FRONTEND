@@ -16,6 +16,9 @@ const PartyFinder = () => {
   const [serverTag, setServerTag] = useState("");
   const [filter, setFilter] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
+  const [rankFilter, setRankFilter] = useState("");
+  const [gamemodeFilter, setGamemodeFilter] = useState("");
+
   const tagOptions = [
     { value: "has mic", label: "has mic" },
     { value: "speaks tagalog", label: "speaks tagalog" },
@@ -183,9 +186,15 @@ const PartyFinder = () => {
     element.style.height = element.scrollHeight + "px";
   };
 
-  const filteredParties = filter
-    ? parties.filter((party) => party.server_tag === filter)
-    : parties;
+  const filteredParties = parties.filter((party) => {
+    return (
+      (filter === "" || party.server_tag === filter) &&
+      (rankFilter === "" ||
+        rankFilter === "ANY" ||
+        party.rank === rankFilter) &&
+      (gamemodeFilter === "" || party.gamemode === gamemodeFilter)
+    );
+  });
 
   const handleTagChange = (selectedOptions) => {
     setSelectedTags(selectedOptions.map((option) => option.value));
@@ -382,7 +391,7 @@ const PartyFinder = () => {
           All posts will have 5 minutes until status is set to expired
         </p>
 
-        <div className="mt-4">
+        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-4">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -395,6 +404,33 @@ const PartyFinder = () => {
             <option value="EU">EU Server</option>
             <option value="KR">KR Server</option>
             <option value="AP">AP Server</option>
+          </select>
+
+          <select
+            value={rankFilter}
+            onChange={(e) => setRankFilter(e.target.value)}
+            className="bg-gray-700 text-white p-2 rounded"
+          >
+            <option value="">Filter by Rank</option>
+            <option value="ANY">ALL RANKS</option>
+            <option value="IRON">IRON</option>
+            <option value="BRONZE">BRONZE</option>
+            <option value="SILVER">SILVER</option>
+            <option value="GOLD">GOLD</option>
+            <option value="DIAMOND">DIAMOND</option>
+            <option value="ASCENDANT">ASCENDANT</option>
+            <option value="IMMORTAL">IMMORTAL</option>
+            <option value="RADIANT">RADIANT</option>
+          </select>
+
+          <select
+            value={gamemodeFilter}
+            onChange={(e) => setGamemodeFilter(e.target.value)}
+            className="bg-gray-700 text-white p-2 rounded"
+          >
+            <option value="">Filter by Game Mode</option>
+            <option value="unrated">Unrated</option>
+            <option value="competitive">Competitive</option>
           </select>
         </div>
 
@@ -452,7 +488,7 @@ const PartyFinder = () => {
                     {party.expired ? "Expired" : "Active"}{" "}
                     <span className="text-white">-</span>&nbsp;
                     <span className="bg-yellow-100 text-yellow-800 text-sm font-regular me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
-                      {party.server_tag}
+                     {party.server_tag} Server
                     </span>{" "}
                   </p>
                 </span>
