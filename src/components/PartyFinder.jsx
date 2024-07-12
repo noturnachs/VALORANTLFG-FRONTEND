@@ -12,6 +12,7 @@ const PartyFinder = () => {
   const [error, setError] = useState(null);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [serverTag, setServerTag] = useState("");
   
 
   useEffect(() => {
@@ -26,7 +27,7 @@ const PartyFinder = () => {
             )
           : [];
         setParties(sortedParties);
-        setError(""); // Reset error state in case of successful fetch
+        setError(""); 
       } catch (err) {
         const message = err.response?.data?.msg || "An error occurred";
         setError(message);
@@ -54,8 +55,9 @@ const PartyFinder = () => {
   }, []);
 
   const postParty = async () => {
-    setError(null); // Clear any previous errors
+    setError(null); // Reset error state
 
+    // Validation checks
     if (!partyCode.trim() && !description.trim()) {
       setError("Please provide both a Party Code and a Description.");
       return;
@@ -64,6 +66,9 @@ const PartyFinder = () => {
       return;
     } else if (!description.trim()) {
       setError("Please provide a Description.");
+      return;
+    } else if (!serverTag.trim()) {
+      setError("Please select a Server.");
       return;
     }
 
@@ -78,6 +83,7 @@ const PartyFinder = () => {
         {
           partyCode,
           description,
+          serverTag, // Make sure to include serverTag in the request body if needed
         }
       );
 
@@ -102,11 +108,11 @@ const PartyFinder = () => {
   const pasteCode = async () => {
     try {
       const text = await navigator.clipboard.readText();
-      setPartyCode(text.slice(0, 6)); // Ensure the pasted text is limited to 6 characters
-      setAlertVisible(true); // Show alert
+      setPartyCode(text.slice(0, 6)); 
+      setAlertVisible(true); 
       setAlertMessage("Code pasted successfully");
       setTimeout(() => {
-        setAlertVisible(false); // Hide alert after 5 seconds
+        setAlertVisible(false); 
       }, 5000);
     } catch (err) {
       console.error("Failed to read clipboard contents: ", err);
@@ -221,6 +227,21 @@ const PartyFinder = () => {
             </button>
           </div>
 
+          <div className="mt-5">
+            <select
+              value={serverTag}
+              onChange={(e) => setServerTag(e.target.value)}
+              className="bg-gray-700 text-white p-2 rounded"
+            >
+              <option value="">Select Server</option>
+              <option value="NA">NA Server</option>
+              <option value="LATAM">LATAM Server</option>
+              <option value="BR">BR Server</option>
+              <option value="EU">EU Server</option>
+              <option value="KR">KR Server</option>
+              <option value="AP">AP Server</option>
+            </select>
+          </div>
           <textarea
             className="w-full p-2 mt-4 rounded bg-[#374151] resize-none"
             placeholder="a little bit of text ex: need 2, need 1"
@@ -251,23 +272,28 @@ const PartyFinder = () => {
         ) : (
           parties.map((party, index) => (
             <div key={index} className="bg-gray-700 p-4 mt-2 rounded">
-              <h3 className="text-xl text-white">
-                <span className="font-bold text-[#6dfed8] p-[3px] text-2xl">
+              <h3 className=" text-white">
+                <span className="font-bold text-[#6dfed8] text-2xl">
                   {party.party_code.toUpperCase()}
+                </span>
+
+                <span>
+                  <p
+                    className={`text-sm font-bold ${
+                      party.expired ? "text-red-500" : "text-green-500"
+                    }`}
+                  >
+                    {party.expired ? "Expired" : "Active"} <span className="text-white">-</span>&nbsp;
+                    <span className="bg-yellow-100 text-yellow-800 text-sm font-regular me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
+                      {party.server_tag}
+                    </span>{" "}
+                  </p>
                 </span>
               </h3>
               <p className="text-gray-400 text-xs">
                 Posted {getLocalTime(party.created_at)}
               </p>
               <p className="text-white">{party.description}</p>
-
-              <p
-                className={`text-sm ${
-                  party.expired ? "text-red-500" : "text-green-500"
-                }`}
-              >
-                {party.expired ? "Expired" : "Active"}
-              </p>
             </div>
           ))
         )}
