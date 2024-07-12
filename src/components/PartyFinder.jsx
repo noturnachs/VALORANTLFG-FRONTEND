@@ -54,56 +54,60 @@ const PartyFinder = () => {
     };
   }, []);
 
-  const postParty = async () => {
-    setError(null); // Reset error state
+const postParty = async () => {
+  setError(null); // Reset error state
 
-    // Validation checks
-    if (!partyCode.trim() && !description.trim()) {
-      setError("Please provide both a Party Code and a Description.");
-      return;
-    } else if (!partyCode.trim()) {
-      setError("Please provide a Party Code.");
-      return;
-    } else if (!description.trim()) {
-      setError("Please provide a Description.");
-      return;
-    } else if (!serverTag.trim()) {
-      setError("Please select a Server.");
-      return;
-    }
+  // Validation checks
+  if (!partyCode.trim() && !description.trim()) {
+    setError("Please provide both a Party Code and a Description.");
+    return;
+  } else if (!partyCode.trim()) {
+    setError("Please provide a Party Code.");
+    return;
+  } else if (!description.trim()) {
+    setError("Please provide a Description.");
+    return;
+  } else if (!serverTag.trim()) {
+    setError("Please select a Server.");
+    return;
+  }
 
-    if (partyCode.length > 6) {
-      setError("Party Code must be 6 characters or less");
-      return;
-    }
+  if (partyCode.length > 6) {
+    setError("Party Code must be 6 characters or less");
+    return;
+  }
 
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/parties`,
-        {
-          partyCode,
-          description,
-          serverTag, // Make sure to include serverTag in the request body if needed
-        }
-      );
-
-      if (response.status === 200) {
-        console.log("Party added successfully:", response.data);
-        setAlertMessage("Party added successfully");
-        setAlertVisible(true);
-        setTimeout(() => {
-          setAlertVisible(false);
-        }, 5000);
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_URL}/parties`,
+      {
+        partyCode,
+        description,
+        serverTag, // Make sure to include serverTag in the request body if needed
       }
-    } catch (err) {
-      console.error(err);
-      if (err.response && err.response.data) {
-        setError(err.response.data.error);
+    );
+
+    if (response.status === 200) {
+      console.log("Party added successfully:", response.data);
+      setAlertMessage("Party added successfully");
+      setAlertVisible(true);
+      setTimeout(() => {
+        setAlertVisible(false);
+      }, 5000);
+    }
+  } catch (err) {
+    console.error(err);
+    if (err.response && err.response.data) {
+      if (err.response.data.error.includes("profanity")) {
+        setError("Please avoid using profane language in your description.");
       } else {
-        setError("Failed to add party");
+        setError(err.response.data.error);
       }
+    } else {
+      setError("Failed to add party");
     }
-  };
+  }
+};
 
   const pasteCode = async () => {
     try {
@@ -195,7 +199,7 @@ const PartyFinder = () => {
             Invite Players by Party Code
           </h2>
           {error && (
-            <div className="text-red-500 text-center mt-2">{error}</div>
+            <div className="text-red-500 text-center mt-2 font-bold">{error}</div>
           )}
           <div className="flex flex-row space-x-2 items-center mt-4">
             <input
