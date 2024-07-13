@@ -88,6 +88,12 @@ const PartyFinder = () => {
       );
     });
 
+    socket.on("partyDeleted", (id) => {
+      setParties((prevParties) =>
+        prevParties.filter((party) => party.id !== id)
+      );
+    });
+
     socket.on("newParty", (newParty) => {
       setParties((prevParties) => [newParty, ...prevParties]);
     });
@@ -95,6 +101,7 @@ const PartyFinder = () => {
     return () => {
       socket.off("partyExpired");
       socket.off("newParty");
+      socket.off("partyDeleted");
     };
   }, []);
 
@@ -426,7 +433,11 @@ const PartyFinder = () => {
         <h2 className="text-2xl text-white font-bold">All Parties</h2>
         <p className="text-xs text-gray-500">Most recent to Oldest</p>
         <p className="text-xs text-red-500">
-          All posts will have 5 minutes until status is set to expired
+          All posts will have 5 minutes until status is set to expired.
+        </p>
+        <p className="text-xs text-red-500">
+          Posts on the website will be automatically removed 1 hour after they
+          are published.
         </p>
 
         <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-4 mb-5">
