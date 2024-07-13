@@ -213,6 +213,20 @@ const PartyFinder = () => {
     setSelectedTags(selectedOptions.map((option) => option.value));
   };
 
+  const copyToClipboard = async (partyCode) => {
+    try {
+      await navigator.clipboard.writeText(partyCode);
+      setAlertMessage("Successfully copied"); // Set the success message
+      setAlertVisible(true); // Show the alert
+      setTimeout(() => {
+        setAlertVisible(false); // Hide the alert after some time
+      }, 5000);
+    } catch (err) {
+      console.error("Failed to copy to clipboard: ", err);
+      // Optionally handle error (e.g., show an error alert)
+    }
+  };
+
   return (
     <div className="container mx-auto mt-10">
       <div
@@ -482,7 +496,10 @@ const PartyFinder = () => {
           filteredParties.map((party, index) => (
             <div key={index} className="bg-gray-700 p-4 mt-2 rounded">
               <h3 className=" text-white">
-                <span className="font-bold text-[#6dfed8] text-2xl">
+                <span
+                  className="font-bold text-[#6dfed8] text-2xl cursor-pointer"
+                  onClick={() => copyToClipboard(party.partyCode)}
+                >
                   {party.party_code.toUpperCase()}
                 </span>
                 <div className="flex flex-row">
@@ -536,7 +553,9 @@ const PartyFinder = () => {
                 </span>
               </h3>
 
-              <p className="text-white bg-slate-600  p-2 rounded mt-2 mb-2">{party.description}</p>
+              <p className="text-white bg-slate-600  p-2 rounded mt-2 mb-2">
+                {party.description}
+              </p>
               <p className="text-gray-400 text-[11.5px]">
                 Posted {getLocalTime(party.created_at)}
               </p>
