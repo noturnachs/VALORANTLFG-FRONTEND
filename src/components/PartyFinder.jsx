@@ -19,6 +19,8 @@ const PartyFinder = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [rankFilter, setRankFilter] = useState("");
   const [gamemodeFilter, setGamemodeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
 
   const tagOptions = [
     { value: "has mic", label: "has mic" },
@@ -186,6 +188,7 @@ const PartyFinder = () => {
     setFilter("");
     setRankFilter("");
     setGamemodeFilter("");
+    setStatusFilter("");
   };
 
   const adjustHeight = (element) => {
@@ -199,7 +202,10 @@ const PartyFinder = () => {
       (rankFilter === "" ||
         rankFilter === "ANY" ||
         party.rank === rankFilter) &&
-      (gamemodeFilter === "" || party.gamemode === gamemodeFilter)
+      (gamemodeFilter === "" || party.gamemode === gamemodeFilter) &&
+      (statusFilter === "" ||
+        (statusFilter === "ACTIVE" && !party.expired) ||
+        (statusFilter === "EXPIRED" && party.expired))
     );
   });
 
@@ -406,7 +412,16 @@ const PartyFinder = () => {
           All posts will have 5 minutes until status is set to expired
         </p>
 
-        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-4">
+        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-4 mb-5">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="bg-gray-700 text-white p-2 rounded"
+          >
+            <option value="">All Status</option>
+            <option value="ACTIVE">Active</option>
+            <option value="EXPIRED">Expired</option>
+          </select>
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -448,7 +463,10 @@ const PartyFinder = () => {
             <option value="competitive">Competitive</option>
           </select>
 
-          {(filter !== "" || rankFilter !== "" || gamemodeFilter !== "") && (
+          {(filter !== "" ||
+            rankFilter !== "" ||
+            gamemodeFilter !== "" ||
+            statusFilter !== "") && (
             <button
               onClick={clearFilters}
               className="bg-red-500 text-white p-2 rounded hover:bg-red-700 transition duration-300"
