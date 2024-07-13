@@ -265,8 +265,11 @@ const PartyFinder = () => {
       </div>
       <div className="flex items-center justify-center ">
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
-          <h2 className="text-2xl text-white font-bold text-center">
-            Find Valorant Parties
+          <h1 className="text-2xl text-[#fe4554] font-bold text-center">
+            Welcome to Valorant Party Finder
+          </h1>
+          <h2 className="text-md text-white font-semibold text-center mt-2">
+            Connect on Riot Games for Competitive and Casual Valorant Matches
           </h2>
           <p className="text-gray-300 text-justify mt-2">
             Welcome to ValoParty, the ultimate destination for finding your
