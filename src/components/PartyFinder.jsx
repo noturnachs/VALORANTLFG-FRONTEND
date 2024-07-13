@@ -536,7 +536,7 @@ const PartyFinder = () => {
                 </span>
               </h3>
 
-              <p className="text-white">{party.description}</p>
+              <p className="text-white bg-slate-600  p-2 rounded mt-2 mb-2">{party.description}</p>
               <p className="text-gray-400 text-[11.5px]">
                 Posted {getLocalTime(party.created_at)}
               </p>
