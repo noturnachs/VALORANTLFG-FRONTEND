@@ -25,7 +25,10 @@ const PartyFinder = () => {
   const tagOptions = [
     { value: "has mic", label: "has mic" },
     { value: "speaks tagalog", label: "speaks tagalog" },
-   
+    { value: "speaks english", label: "speaks english" },
+    { value: "speaks bisaya", label: "speaks bisaya" },
+    { value: "preferably female", label: "preferably female" },
+    { value: "preferably male", label: "preferably male" },
   ];
   const [rank, setRank] = useState("");
   const [gamemode, setGamemode] = useState("");
