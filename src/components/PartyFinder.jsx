@@ -566,6 +566,17 @@ const PartyFinder = () => {
           ))
         )}
       </div>
+      <footer className="mt-10 text-center mb-1 text-sm">
+        For reports/suggestions please click this link:&nbsp;
+        <a
+          href="https://forms.gle/WsySHL4RzT6fcW7a7"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-500 hover:text-blue-700"
+        >
+          Submit feedback/reports
+        </a>
+      </footer>
     </div>
   );
 };
