@@ -4,6 +4,7 @@
 
 * {
     font-family: 'Lato', sans-serif;
+    
 }
 
 
@@ -27,4 +28,36 @@
 
 ::-webkit-scrollbar-corner {
     background: #f1f1f1;
+}
+
+
+@keyframes goldSparkle {
+  0%, 100% {
+    color: #DAA520; 
+    text-shadow: 0 0 2px #FFD700, 0 0 4px #FFD700, 0 0 6px #FFD700;
+  }
+  50% {
+    color: #FFD700; 
+    text-shadow: 0 0 1px #DAA520, 0 0 2px #DAA520, 0 0 3px #DAA520;
+  }
+}
+
+.gold-sparkle {
+  animation: goldSparkle 2s infinite alternate;
+}
+
+
+@keyframes goldSparkle2 {
+  0%, 100% {
+    color: #e6e5e4; 
+    text-shadow: 0 0 2px #FFD700, 0 0 4px #FFD700, 0 0 6px #FFD700;
+  }
+  50% {
+    color: #FFD700; 
+    text-shadow: 0 0 1px #DAA520, 0 0 2px #DAA520, 0 0 3px #DAA520;
+  }
+}
+
+.gold-sparkle2 {
+  animation: goldSparkle2 2s infinite alternate;
 }
