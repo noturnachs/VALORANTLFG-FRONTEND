@@ -3,8 +3,7 @@ import axios from "axios";
 import moment from "moment-timezone";
 import io from "socket.io-client";
 import Select from "react-select";
-import partnerLogo from "./partners/araxys.jpg";
-
+import partnerLogo from "./partners/araxys.jpg"; // Ensure the path is correct
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
@@ -21,7 +20,27 @@ const PartyFinder = () => {
   const [rankFilter, setRankFilter] = useState("");
   const [gamemodeFilter, setGamemodeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [rank, setRank] = useState("");
+  const [gamemode, setGamemode] = useState("");
+  const [loading, setLoading] = useState(true); 
 
+  useEffect(() => {
+    const loadImage = new Image();
+    loadImage.src = partnerLogo;
+
+    loadImage.onload = () => {
+      setTimeout(() => {
+        setLoading(false);
+      }, 3000); 
+    };
+
+    loadImage.onerror = () => {
+      setTimeout(() => {
+        setLoading(false);
+      }, 3000); 
+
+    };
+  }, []);
 
   const tagOptions = [
     { value: "has mic", label: "has mic" },
@@ -31,8 +50,6 @@ const PartyFinder = () => {
     { value: "preferably female", label: "preferably female" },
     { value: "preferably male", label: "preferably male" },
   ];
-  const [rank, setRank] = useState("");
-  const [gamemode, setGamemode] = useState("");
 
   const getRankStyle = (rank) => {
     switch (rank) {
@@ -55,10 +72,9 @@ const PartyFinder = () => {
       case "RADIANT":
         return "bg-[#ffffa5] text-black ";
       default:
-        return "bg-gray-200 text-gray-800"; 
+        return "bg-gray-200 text-gray-800";
     }
   };
-
 
   useEffect(() => {
     const fetchParties = async () => {
@@ -108,8 +124,6 @@ const PartyFinder = () => {
 
   const postParty = async () => {
     setError(null); // Reset error state
-
-    
 
     // Validation checks
     if (!partyCode.trim() && !description.trim()) {
@@ -304,47 +318,40 @@ const PartyFinder = () => {
           </h2>
 
           <p className="text-gray-300 text-justify mt-2">
-            Post your party code and connect with players
-            for exciting Valorant matches on Riot Games. Whether it's casual or
-            competitive, join the Valorant community and dive into the action
-            today!
+            Post your party code and connect with players for exciting Valorant
+            matches on Riot Games. Whether it's casual or competitive, join the
+            Valorant community and dive into the action today!
           </p>
 
           <div className="mt-5">
             <h1 className="font-regular mb-2 gold-sparkle tracking-wider">
               Official Partners
             </h1>
-            <p className="flex flex-row space-x-2">
+            <div className="flex flex-row space-x-2">
               <span className="flex flex-col items-center">
-                <a
-                  href="https://discord.com/invite/p58TSsz3"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src={partnerLogo}
-                    alt="Official Partner"
-                    className="w-20 h-20 rounded-full object-cover"
-                  />
-                  <h2 className="text-xs font-bold gold-sparkle2 tracking-wider">
-                    Araxys Esports
-                  </h2>
-                </a>
+                {loading ? (
+                  <div
+                    role="status"
+                    className="animate-pulse h-20 w-20 rounded-full bg-slate-400"
+                  ></div>
+                ) : (
+                  <a
+                    href="https://discord.com/invite/p58TSsz3"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src={partnerLogo}
+                      alt="Official Partner"
+                      className="w-20 h-20 rounded-full object-cover"
+                    />
+                    <h2 className="text-xs font-bold gold-sparkle2 tracking-wider mt-1">
+                      Araxys Esports
+                    </h2>
+                  </a>
+                )}
               </span>
-              {/* <span>
-                <a
-                  href="YOUR_DISCORD_INVITE_LINK"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src={partnerLogo}
-                    alt="Official Partner"
-                    className="w-20 h-20 rounded-full object-cover"
-                  />
-                </a>
-              </span> */}
-            </p>
+            </div>
           </div>
 
           {error && (
