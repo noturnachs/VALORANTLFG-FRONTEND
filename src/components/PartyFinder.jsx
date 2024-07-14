@@ -620,7 +620,7 @@ const PartyFinder = () => {
           ))
         )}
       </div>
-      <footer className="mt-10 text-center mb-1 text-sm">
+      <footer className="mt-10 text-center mb-3 text-sm">
         For reports/suggestions please click this link:&nbsp;
         <a
           href="https://forms.gle/WsySHL4RzT6fcW7a7"
