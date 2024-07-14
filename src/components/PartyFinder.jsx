@@ -3,6 +3,7 @@ import axios from "axios";
 import moment from "moment-timezone";
 import io from "socket.io-client";
 import Select from "react-select";
+import partnerLogo from "./partners/araxys.jpg";
 
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
@@ -301,6 +302,7 @@ const PartyFinder = () => {
           <h2 className="text-md text-white font-semibold text-center mt-2">
             Connect on Riot Games for Competitive and Casual Valorant Matches
           </h2>
+
           <p className="text-gray-300 text-justify mt-2">
             Welcome to ValoParty, the ultimate destination for finding your
             perfect Valorant Party! Post your party code and seamlessly connect
@@ -310,6 +312,43 @@ const PartyFinder = () => {
             Valorant community efficiently. Dive into the action today and
             experience gaming like never before!
           </p>
+
+          <div className="mt-5">
+            <h1 className="font-regular mb-2 gold-sparkle tracking-wider">
+              Official Partners
+            </h1>
+            <p className="flex flex-row space-x-2">
+              <span className="flex flex-col items-center">
+                <a
+                  href="https://discord.com/invite/p58TSsz3"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src={partnerLogo}
+                    alt="Official Partner"
+                    className="w-20 h-20 rounded-full object-cover"
+                  />
+                  <h2 className="text-xs font-bold gold-sparkle2 tracking-wider">
+                    Araxys Esports
+                  </h2>
+                </a>
+              </span>
+              {/* <span>
+                <a
+                  href="YOUR_DISCORD_INVITE_LINK"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src={partnerLogo}
+                    alt="Official Partner"
+                    className="w-20 h-20 rounded-full object-cover"
+                  />
+                </a>
+              </span> */}
+            </p>
+          </div>
 
           {error && (
             <div className="text-red-500 text-center mt-2 font-bold">
