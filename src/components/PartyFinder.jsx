@@ -22,23 +22,64 @@ const PartyFinder = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [rank, setRank] = useState("");
   const [gamemode, setGamemode] = useState("");
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
+  const [uniquePosts, setUniquePosts] = useState(new Set());
+  const [displayedPosts, setDisplayedPosts] = useState([]);
+
+
+
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/posts`);
+      const data = await response.json();
+      const format = /[A-Za-z]{3}\d{3}/; // Regular expression to match the format
+
+      // Filter out duplicate posts, extract codes, and exclude posts without a code or with a repeated code
+      const newPosts = data
+        .filter((post) => !uniquePosts.has(post))
+        .map((post) => {
+          const match = post.match(format);
+          return match ? { code: match[0], text: post } : null;
+        })
+        .filter((post) => post !== null && !uniquePosts.has(post.code)); // Exclude posts without a code and repeated codes
+
+      // Update uniquePosts set
+      newPosts.forEach((post) => uniquePosts.add(post.code));
+
+      // Update displayedPosts array to add new posts on top
+      setDisplayedPosts((prevPosts) => [...newPosts, ...prevPosts]);
+    } catch (error) {
+      console.error("Failed to fetch posts:", error);
+    }
+  };
+
+
+   useEffect(() => {
+     fetchPosts();
+
+     const intervalId = setInterval(fetchPosts, 60 * 1000); //1 minute
+
+     // Clean up interval on component unmount
+     return () => clearInterval(intervalId);
+   }, []);
+
 
   useEffect(() => {
+
+
     const loadImage = new Image();
     loadImage.src = partnerLogo;
 
     loadImage.onload = () => {
       setTimeout(() => {
         setLoading(false);
-      }, 3000); 
+      }, 3000);
     };
 
     loadImage.onerror = () => {
       setTimeout(() => {
         setLoading(false);
-      }, 3000); 
-
+      }, 3000);
     };
   }, []);
 
@@ -472,154 +513,184 @@ const PartyFinder = () => {
           </button>
         </div>
       </div>
-      <div className="bg-gray-800 p-6 mt-4 rounded-lg shadow-lg mb-5">
-        <h2 className="text-2xl text-white font-bold">All Parties</h2>
-        <p className="text-xs text-gray-500">Most recent to Oldest</p>
-        <p className="text-xs text-red-500">
-          All posts will have 5 minutes until status is set to expired.
-        </p>
-        <p className="text-xs text-red-500">
-          Posts will be automatically removed 1 hour after they
-          are published.
-        </p>
+       
+        <div className="bg-gray-800 p-6 mt-4 rounded-lg shadow-lg mb-5">
+          <h2 className="text-2xl text-white font-bold">All Parties</h2>
+          <p className="text-xs text-gray-500">Most recent to Oldest</p>
+          <p className="text-xs text-red-500">
+            All posts will have 5 minutes until status is set to expired.
+          </p>
+          <p className="text-xs text-red-500">
+            Posts will be automatically removed 1 hour after they are published.
+          </p>
 
-        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-4 mb-5">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-gray-700 text-white p-2 rounded"
-          >
-            <option value="">All Status</option>
-            <option value="ACTIVE">Active</option>
-            <option value="EXPIRED">Expired</option>
-          </select>
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="bg-gray-700 text-white p-2 rounded"
-          >
-            <option value="">All Servers</option>
-            <option value="NA">NA Server</option>
-            <option value="LATAM">LATAM Server</option>
-            <option value="BR">BR Server</option>
-            <option value="EU">EU Server</option>
-            <option value="KR">KR Server</option>
-            <option value="AP">AP Server</option>
-          </select>
-
-          <select
-            value={rankFilter}
-            onChange={(e) => setRankFilter(e.target.value)}
-            className="bg-gray-700 text-white p-2 rounded"
-          >
-            <option value="">Filter by Rank</option>
-            <option value="ANY">ALL RANKS</option>
-            <option value="IRON">IRON</option>
-            <option value="BRONZE">BRONZE</option>
-            <option value="SILVER">SILVER</option>
-            <option value="GOLD">GOLD</option>
-            <option value="DIAMOND">DIAMOND</option>
-            <option value="ASCENDANT">ASCENDANT</option>
-            <option value="IMMORTAL">IMMORTAL</option>
-            <option value="RADIANT">RADIANT</option>
-          </select>
-
-          <select
-            value={gamemodeFilter}
-            onChange={(e) => setGamemodeFilter(e.target.value)}
-            className="bg-gray-700 text-white p-2 rounded"
-          >
-            <option value="">Filter by Game Mode</option>
-            <option value="unrated">Unrated</option>
-            <option value="competitive">Competitive</option>
-          </select>
-
-          {(filter !== "" ||
-            rankFilter !== "" ||
-            gamemodeFilter !== "" ||
-            statusFilter !== "") && (
-            <button
-              onClick={clearFilters}
-              className="bg-red-500 text-white p-2 rounded hover:bg-red-700 transition duration-300"
+          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-4 mb-5">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-gray-700 text-white p-2 rounded"
             >
-              Clear Filters
-            </button>
+              <option value="">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="EXPIRED">Expired</option>
+            </select>
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="bg-gray-700 text-white p-2 rounded"
+            >
+              <option value="">All Servers</option>
+              <option value="NA">NA Server</option>
+              <option value="LATAM">LATAM Server</option>
+              <option value="BR">BR Server</option>
+              <option value="EU">EU Server</option>
+              <option value="KR">KR Server</option>
+              <option value="AP">AP Server</option>
+            </select>
+
+            <select
+              value={rankFilter}
+              onChange={(e) => setRankFilter(e.target.value)}
+              className="bg-gray-700 text-white p-2 rounded"
+            >
+              <option value="">Filter by Rank</option>
+              <option value="ANY">ALL RANKS</option>
+              <option value="IRON">IRON</option>
+              <option value="BRONZE">BRONZE</option>
+              <option value="SILVER">SILVER</option>
+              <option value="GOLD">GOLD</option>
+              <option value="DIAMOND">DIAMOND</option>
+              <option value="ASCENDANT">ASCENDANT</option>
+              <option value="IMMORTAL">IMMORTAL</option>
+              <option value="RADIANT">RADIANT</option>
+            </select>
+
+            <select
+              value={gamemodeFilter}
+              onChange={(e) => setGamemodeFilter(e.target.value)}
+              className="bg-gray-700 text-white p-2 rounded"
+            >
+              <option value="">Filter by Game Mode</option>
+              <option value="unrated">Unrated</option>
+              <option value="competitive">Competitive</option>
+            </select>
+
+            {(filter !== "" ||
+              rankFilter !== "" ||
+              gamemodeFilter !== "" ||
+              statusFilter !== "") && (
+              <button
+                onClick={clearFilters}
+                className="bg-red-500 text-white p-2 rounded hover:bg-red-700 transition duration-300"
+              >
+                Clear Filters
+              </button>
+            )}
+          </div>
+
+          {filteredParties.length === 0 ? (
+            <div className="text-white mt-2 font-bold">No parties found</div>
+          ) : (
+            filteredParties.map((party, index) => (
+              <div key={index} className="bg-gray-700 p-4 mt-2 rounded">
+                <h3 className=" text-white">
+                  <span
+                    className="font-bold text-[#6dfed8] text-2xl cursor-pointer"
+                    onClick={() => copyToClipboard(party.partyCode)}
+                  >
+                    {party.party_code.toUpperCase()}
+                  </span>
+                  <div className="flex flex-row">
+                    <div className="mt-1">
+                      {party.add_tags &&
+                        party.add_tags.map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="bg-green-200 text-green-300 text-xs font-medium me-1 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                    </div>
+
+                    {/* Display rank */}
+                    {party.rank && (
+                      <div className="mt-1">
+                        <span
+                          className={`${getRankStyle(
+                            party.rank
+                          )} text-xs font-bold me-1 px-2.5 py-0.5 rounded-full `}
+                        >
+                          {party.rank}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Display gamemode */}
+                    {party.gamemode && (
+                      <div className="mt-1">
+                        <span className="bg-purple-200 text-purple-800 text-xs font-medium me-1 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                          {party.gamemode}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <span>
+                    <p
+                      className={`text-sm mt-1 font-bold ${
+                        party.expired ? "text-red-500" : "text-green-500"
+                      }`}
+                    >
+                      {party.expired ? "Expired" : "Active"}{" "}
+                      <span className="text-white">-</span>&nbsp;
+                      <span className="bg-yellow-100 text-yellow-800 text-sm font-regular me-2 px-1 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
+                        {party.server_tag} Server
+                      </span>{" "}
+                    </p>
+                  </span>
+                </h3>
+
+                <p className="text-white bg-slate-600  p-2 rounded mt-2 mb-2">
+                  {party.description}
+                </p>
+                <p className="text-gray-400 text-[11.5px]">
+                  Posted {getLocalTime(party.created_at)}
+                </p>
+              </div>
+            ))
           )}
         </div>
+        <div className="bg-gray-800 p-6 mt-4 rounded-lg shadow-lg mb-5">
+          <h1 className="font-bold">Posts from ValorantPH</h1>
 
-        {filteredParties.length === 0 ? (
-          <div className="text-white mt-2 font-bold">No parties found</div>
-        ) : (
-          filteredParties.map((party, index) => (
+          {displayedPosts.map((post, index) => (
             <div key={index} className="bg-gray-700 p-4 mt-2 rounded">
-              <h3 className=" text-white">
+              <h3 className="text-white">
                 <span
                   className="font-bold text-[#6dfed8] text-2xl cursor-pointer"
-                  onClick={() => copyToClipboard(party.partyCode)}
+                  onClick={() => copyToClipboard(post.code)}
                 >
-                  {party.party_code.toUpperCase()}
+                  {post.code.toUpperCase()}
                 </span>
                 <div className="flex flex-row">
                   <div className="mt-1">
-                    {party.add_tags &&
-                      party.add_tags.map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="bg-green-200 text-green-300 text-xs font-medium me-1 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                    <span
+                      className={`bg-[#0866ff] text-white text-xs font-bold me-1 px-2.5 py-0.5 rounded-full `}
+                    >
+                      FROM FACEBOOK
+                    </span>
                   </div>
-
-                  {/* Display rank */}
-                  {party.rank && (
-                    <div className="mt-1">
-                      <span
-                        className={`${getRankStyle(
-                          party.rank
-                        )} text-xs font-bold me-1 px-2.5 py-0.5 rounded-full `}
-                      >
-                        {party.rank}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Display gamemode */}
-                  {party.gamemode && (
-                    <div className="mt-1">
-                      <span className="bg-purple-200 text-purple-800 text-xs font-medium me-1 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
-                        {party.gamemode}
-                      </span>
-                    </div>
-                  )}
                 </div>
-
-                <span>
-                  <p
-                    className={`text-sm mt-1 font-bold ${
-                      party.expired ? "text-red-500" : "text-green-500"
-                    }`}
-                  >
-                    {party.expired ? "Expired" : "Active"}{" "}
-                    <span className="text-white">-</span>&nbsp;
-                    <span className="bg-yellow-100 text-yellow-800 text-sm font-regular me-2 px-1 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
-                      {party.server_tag} Server
-                    </span>{" "}
-                  </p>
-                </span>
               </h3>
-
-              <p className="text-white bg-slate-600  p-2 rounded mt-2 mb-2">
-                {party.description}
-              </p>
-              <p className="text-gray-400 text-[11.5px]">
-                Posted {getLocalTime(party.created_at)}
+              <p className="text-white bg-slate-600 p-2 rounded mt-2 mb-2">
+                {post.text}
               </p>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      
+
       <footer className="mt-10 text-center mb-3 text-sm">
         For reports/suggestions please click this link:&nbsp;
         <a
