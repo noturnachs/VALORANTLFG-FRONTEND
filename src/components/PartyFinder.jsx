@@ -304,13 +304,10 @@ const PartyFinder = () => {
           </h2>
 
           <p className="text-gray-300 text-justify mt-2">
-            Welcome to ValoParty, the ultimate destination for finding your
-            perfect Valorant Party! Post your party code and seamlessly connect
-            with players for exciting matches on the Riot Games platform.
-            Whether you're looking for a casual game or aiming for competitive
-            glory, our platform is designed to integrate players into the
-            Valorant community efficiently. Dive into the action today and
-            experience gaming like never before!
+            Post your party code and connect with players
+            for exciting Valorant matches on Riot Games. Whether it's casual or
+            competitive, join the Valorant community and dive into the action
+            today!
           </p>
 
           <div className="mt-5">
