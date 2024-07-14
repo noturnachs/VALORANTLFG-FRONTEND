@@ -479,7 +479,7 @@ const PartyFinder = () => {
           All posts will have 5 minutes until status is set to expired.
         </p>
         <p className="text-xs text-red-500">
-          Posts on the website will be automatically removed 1 hour after they
+          Posts will be automatically removed 1 hour after they
           are published.
         </p>
 
