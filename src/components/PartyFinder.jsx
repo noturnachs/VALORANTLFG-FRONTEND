@@ -44,7 +44,11 @@ const PartyFinder = () => {
         .filter((post) => post !== null && !uniquePosts.has(post.code)); // Exclude posts without a code and repeated codes
 
       // Update uniquePosts set
-      newPosts.forEach((post) => uniquePosts.add(post.code));
+      setUniquePosts((prevUniquePosts) => {
+        const updatedUniquePosts = new Set(prevUniquePosts);
+        newPosts.forEach((post) => updatedUniquePosts.add(post.code));
+        return updatedUniquePosts;
+      });
 
       // Update displayedPosts array to add new posts on top
       setDisplayedPosts((prevPosts) => [...newPosts, ...prevPosts]);
@@ -364,7 +368,7 @@ const PartyFinder = () => {
             Valorant community and dive into the action today!
           </p>
 
-          <div className="mt-5">
+          {/* <div className="mt-5">
             <h1 className="font-regular mb-2 gold-sparkle tracking-wider">
               Official Partners
             </h1>
@@ -393,7 +397,7 @@ const PartyFinder = () => {
                 )}
               </span>
             </div>
-          </div>
+          </div> */}
 
           {error && (
             <div className="text-red-500 text-center mt-2 font-bold">
