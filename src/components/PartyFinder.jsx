@@ -665,7 +665,7 @@ const PartyFinder = () => {
             ))
           )}
         </div>
-        <div className="bg-gray-800 p-6 mt-4 rounded-lg shadow-lg mb-5">
+        {/* <div className="bg-gray-800 p-6 mt-4 rounded-lg shadow-lg mb-5">
           <h1 className="font-bold">Posts from ValorantPH</h1>
 
           {displayedPosts.map((post, index) => (
@@ -692,7 +692,7 @@ const PartyFinder = () => {
               </p>
             </div>
           ))}
-        </div>
+        </div> */}
       
 
       <footer className="mt-10 text-center mb-3 text-sm">
